@@ -1,6 +1,6 @@
 # MAS410 Project: Heave Compensator
 
-*Project for MAS410 Hydraulic Components and Systems*
+*Project for the MSc. course MAS410 Hydraulic Components and Systems*
 
 <img src="projectImage.png" alt="drawing" width="450"/> \
 The project's primary focus is to make a heave compensator for the 
