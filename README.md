@@ -2,14 +2,20 @@
 
 *Project for MAS410 Hydraulic Components and Systems*
 
+<img src="projectImage.png" alt="drawing" width="450"/> \
+The project's primary focus is to make a heave compensator for the 
+system shown above with design and control of two hydraulic circuits:
+
+**Circuit A:** Servo Valve &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+**Circuit B:** Proportional Valve & CBV config
+<img src="circuitA.png" alt="drawing" width="335"/>
+<img src="circuitB.png" alt="drawing" width="260"/>
+
 ## Litterature
 
 - The project uses the curriculum from the MAS410 course
 - Also lecture 5 from MAS419 (under simscape folder in CWD)
-
-## Teamwork/Source Control
-
-- Since the project is not big enough to be worth proper source 
-control with git, we chose to use **MATLAB drive**
-- Since it is slow on some scrips and Simulink simulations, we
-run and change the scrips locally and save them on the drive regularly
