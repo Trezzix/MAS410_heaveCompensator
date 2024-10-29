@@ -85,16 +85,16 @@ pL_max = (M_M_max + Jtot * thetadotdot_m_max) * ((2*pi)/Dm);
 %pL = (M_M_max) * ((2*pi)/Dm);
 pL_max_bar = pL_max*1e-5
 %flow
-Qm_max = (Dm/(2*pi)) * thetadot_m_max; %theoretical
-Qm_max_Lpmin = Qm_max * 6*10^4 %for prop valve sizing
+Qm_max_th = (Dm/(2*pi)) * thetadot_m_max; %theoretical
+Qm_max_Lpmin = Qm_max_th * 6*10^4 %for prop valve sizing
     %leakage flow and area
-QL = (Qm_max*(1-eta_vM))/eta_vM;
+QL = (Qm_max_th*(1-eta_vM))/eta_vM;
 QL_Lpmin = QL * 6*10^4
 CdAd_L = QL/sqrt((2/rou)*pL_max);
 
 %%%proportional valve - spool
 %type: closed center, symmetric, CVGxx 31-xx
-Qm_max_total = ((Qm_max+QL)*nm)/(npv);
+Qm_max_total = ((Qm_max_th+QL)*nm)/(npv);
 Qm_max_total_lMin = Qm_max_total * 6*10^4;
 spoolFlows = [60, 140, 220, 500, 820, 1000, 950, 1150];
 spoolTypes = ["CVG30 31-00", "CVG30 31-01", "CVG30 31-02", "CVG30 31-05",...
@@ -131,8 +131,8 @@ pM_in = ps - (deltaP_comp + deltaP_spool);
 
 %%%counterbalance / overbalance valve:
 cbv_alpha_list = [1.5 2 2.3 3 4.5 10];
-cbv_name_list = ["CBiB" "CBIY" "CBIL" "CBIA" "CBIG" "CBIH"]
-pM_out = pM_in - pL_max; %unsure if correct, TODO: doublec check
+cbv_name_list = ["CBIB" "CBIY" "CBIL" "CBIA" "CBIG" "CBIH"];
+%pM_out = pM_in - pL_max; %unsure if correct, TODO: doublec check
 pcr2 = pL_max * pcr2_over; % pL_max is very close to the method used in the examples
 pcr2_bar = pcr2 * 1e-5
 pRet = (Qm_max_total^2 * rou)/(CdAd_spool^2 * 2);

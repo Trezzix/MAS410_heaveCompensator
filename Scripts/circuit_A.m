@@ -21,7 +21,7 @@ eta_vM = 0.94; %volumetric effiency of motor
 %chosen constants
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ps = 220e5; %210 bar -> Pa
-nm = 1; %number of motors
+nm = 3; %number of motors
     %motor size 63
 %Jm = 0.0012; %moment of inertia of motor
 %Dm = 22.9e-6; %cm^3 -> m^3
