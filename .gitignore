@@ -21,3 +21,6 @@ octave-workspace
 
 # Simulink autosave extension
 .autosave
+
+# Simulink Cache File (build artifacts)
+.slxc
