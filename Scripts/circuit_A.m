@@ -20,8 +20,8 @@ eta_vM = 0.94; %volumetric effiency of motor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %chosen constants
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ps = 220e5; %210 bar -> Pa
-nm = 3; %number of motors
+ps = 230e5; %210 bar -> Pa
+nm = 2; %number of motors
     %motor size 63
 %Jm = 0.0012; %moment of inertia of motor
 %Dm = 22.9e-6; %cm^3 -> m^3
@@ -55,14 +55,14 @@ thetadotdot_m_max = iT*thetadotdot_D_max; %[rad/s^2]
 pL_assume = (2/3) * ps; %chosen
 D_min = (2*pi * M_M_max) / pL_assume; %ps -> delta_m_p(?) %TODO: might be missing volumetric efficiency
 D_min_cm = D_min * 1e6
-D_min_rpm = 80; %largest motor we can use with 
+D_min_rpm = 90; %largest motor we can use with 
 %auto choosing motor size
 motorType = [4.93 10.3 12 16 22.9 28.1 32 45.6 56.1 63 80.4 ...
              90 106.7 125 160.4 180 200 250 355 500 710 1000];
 MotorJ = [0.00006 0.0004 0.0004 0.0004 0.0012 0.0012 0.0012 0.0024 0.0042 0.0042 0.0072 0.0072 ...
     0.0116 0.0116 0.0220 0.0220 0.0353 0.061 0.102 0.178 0.55 0.55]; %kg/m^2
 if D_min_cm > D_min_rpm
-    warning("Motor size greater than 80, increase nm")
+    warning("Motor size greater than 90, increase nm")
 end
 
 for i_for = 1:length(motorType)
