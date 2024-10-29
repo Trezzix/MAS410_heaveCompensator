@@ -28,6 +28,7 @@ title('Cost of \textbf{Motor(s)}', 'interpreter','latex')
 xlabel('Motor Size $\left[\frac{cm^3}{rev}\right]$', 'interpreter','latex')
 ylabel('Cost [-]', 'interpreter','latex')
 ylim([0 costHeight])
+grid on
 
 %% Servo Valve(s)
 
@@ -52,6 +53,7 @@ title('Cost of \textbf{Servo Valve(s)}', 'interpreter','latex')
 xlabel('Servo Size $\left[\frac{L}{min}\right]$', 'interpreter','latex')
 ylabel('Cost [-]', 'interpreter','latex')
 ylim([0 costHeight])
+grid on
 
 %% Proportional Valve(s)
 
@@ -76,6 +78,7 @@ title('Cost of \textbf{Proportional Valve(s)}', 'interpreter','latex')
 xlabel('Servo Size $\left[\frac{L}{min}\right]$', 'interpreter','latex')
 ylabel('Cost [-]', 'interpreter','latex')
 ylim([0 costHeight])
+grid on
 
 %% Counterbalance Valve(s)
 
@@ -100,3 +103,4 @@ title('Cost of \textbf{Counterbalance Valve(s)}', 'interpreter','latex')
 xlabel('Counterbalance Size $\left[\frac{L}{min}\right]$', 'interpreter','latex')
 ylabel('Cost [-]', 'interpreter','latex')
 ylim([0 costHeight])
+grid on
