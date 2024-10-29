@@ -86,9 +86,13 @@ Qm_t_Lpmin = Qm_t * 6*10^4
 %Qm_L_min = Qm_t * 6*10^4
 Qm_NL = Qm_t * sqrt(ps/(ps - pL_max));
 Qm_NL_Lpmin = Qm_NL * 6*10^4
+    %leakage flow and area
+QL = (Qm_t*(1-eta_vM))/eta_vM;
+QL_Lpmin = QL * 6*10^4
+CdAd_L = QL/sqrt((2/rou)*pL_max);
 
 %servo valve sizing
-Qm_NL_total = (Qm_NL*nm)/(nv);
+Qm_NL_total = ((Qm_NL)*nm)/(nv);
 Qr_min = safety_factor * Qm_NL_total * sqrt(pr/ps);
 Qr_min_lpmin = Qr_min * 6*10^4 % [l/min]
 %auto choosing valve size

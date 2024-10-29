@@ -60,14 +60,14 @@ thetadotdot_m_max = iT*thetadotdot_D_max; %[rad/s^2]
 pL_assume = (2/3) * ps; %chosen, changes for circuit B
 D_min = (2*pi * M_M_max) / pL_assume; %ps -> delta_m_p(?) %TODO: might be missing volumetric efficiency
 D_min_cm = D_min * 1e6
-D_min_rpm = 63; %largest motor we can use with 
+D_min_rpm = 80; %largest motor we can use with 
 %auto choosing motor size
 motorType = [4.93 10.3 12 16 22.9 28.1 32 45.6 56.1 63 80.4 ...
              90 106.7 125 160.4 180 200 250 355 500 710 1000];
 MotorJ = [0.00006 0.0004 0.0004 0.0004 0.0012 0.0012 0.0012 0.0024 0.0042 0.0042 0.0072 0.0072 ...
     0.0116 0.0116 0.0220 0.0220]; %dosent include all of them
 if D_min_cm > D_min_rpm
-    error("Motor size greater than 63, increase nm")
+    error("Motor size greater than 80, increase nm")
 end
 
 for i_for = 1:length(motorType)
@@ -85,12 +85,16 @@ pL_max = (M_M_max + Jtot * thetadotdot_m_max) * ((2*pi)/Dm);
 %pL = (M_M_max) * ((2*pi)/Dm);
 pL_max_bar = pL_max*1e-5
 %flow
-Qm_max = eta_vM * (Dm/(2*pi)) * thetadot_m_max;
+Qm_max = (Dm/(2*pi)) * thetadot_m_max; %theoretical
 Qm_max_Lpmin = Qm_max * 6*10^4 %for prop valve sizing
+    %leakage flow and area
+QL = (Qm_max*(1-eta_vM))/eta_vM;
+QL_Lpmin = QL * 6*10^4
+CdAd_L = QL/sqrt((2/rou)*pL_max);
 
 %%%proportional valve - spool
 %type: closed center, symmetric, CVGxx 31-xx
-Qm_max_total = (Qm_max*nm)/(npv);
+Qm_max_total = ((Qm_max+QL)*nm)/(npv);
 Qm_max_total_lMin = Qm_max_total * 6*10^4;
 spoolFlows = [60, 140, 220, 500, 820, 1000, 950, 1150];
 spoolTypes = ["CVG30 31-00", "CVG30 31-01", "CVG30 31-02", "CVG30 31-05",...
@@ -104,9 +108,9 @@ for i_for = 1:length(spoolFlows)
     end
 end
 %crank
-%Qr_spool = 1550 / 6e4; %from datasheet of CVG50 31-10
-Qr_spool = 1220 / 6e4; %from datasheet of CVG50 31-08
-Qr_comp = 1150 / 6e4; %from datasheet of CVG50 pg 12
+Qr_spool = 1550 / 6e4; %from datasheet of CVG50 31-10 pg 14
+%Qr_spool = 1220 / 6e4; %from datasheet of CVG50 31-08 pg 14
+Qr_comp = 1150 / 6e4; %from datasheet of CVG50 @10bar pg 12
 
 CdAd_spool = Qr_spool/sqrt((2/rou) * pr); %m^3 main spool
 %CdAd_comp = Qr_comp/sqrt((2/rou) * pr); %m^3 can this be done? - doubt since Ad changes over time
@@ -116,10 +120,10 @@ pcr1 = (Qm_max_total^2 * rou) / (CdAd_spool^2 *2); %3.36
 %pcr1 = rou/2 * (Qm_max_total)^2 * (1/(CdAd_spool^2) + 1/(CdAd_comp^2)) - 6e5;
 
 %delta_p_spool = (Qm_max_total^2 * rou) / (CdAd_spool^2 * 2);
-pcr1_bar = pcr1 * 1e-5
-screw_flow_open = 450;
-screw_flow_max = 1300;
-screw_max_turns = 9.5;
+pcr1_bar = pcr1 * 1e-5 
+screw_flow_open = 500; %from datasheet of CVG50 pg 12
+screw_flow_max = 1600; %from datasheet of CVG50 31-10 pg 14
+screw_max_turns = 10;
 
 pcr1_turns = pcr1_bar/(11/screw_max_turns) %TODO: double check, 11??? hvor kommer det fra..
 
