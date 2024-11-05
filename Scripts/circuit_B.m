@@ -138,7 +138,7 @@ pcr2_bar = pcr2 * 1e-5
 pRet = (Qm_max_total^2 * rou)/(CdAd_spool^2 * 2);
 pRet_bar = pRet * 1e-5
 p1 = ((M_M_max * 2 * pi) / Dm);
-alpha_max = (p1 +pM_in_lower - pcr2 - pRet) / (pRet - pM_in_lower); % wrong?
+alpha_max = (p1 + pM_in_lower - pcr2 - pRet) / (pRet - pM_in_lower); % wrong?
 
 for i_for = 1:length(cbv_alpha_list)
     if cbv_alpha_list(i_for) > alpha_max
@@ -152,3 +152,5 @@ pM_in_lower = (p1 - pcr2 + pRet*(-1 -alpha_cbv))/((-1 -alpha_cbv));
 pM_in_lower_bar = pM_in_lower * 1e-5
 max_capacity = 480; %L/min
 n_cbv_min = ceil(Qm_max_total_lMin/max_capacity)
+
+save("B_vars.mat")

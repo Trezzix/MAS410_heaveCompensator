@@ -10,6 +10,9 @@
 # OSX / *nix default autosave extension
 *.m~
 
+# Exported values
+#*.mat
+
 # Compiled MEX binaries (all platforms)
 *.mex*
 
