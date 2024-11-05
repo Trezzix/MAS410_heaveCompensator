@@ -1,156 +1,164 @@
 clc;clear;close all;
-%format bank
-%given constants
-g = 9.81; % m/s^2
-dD = 0.45; %m, diameter Drum
-dR = 0.5; %m, diameter gear rim
-dp = 0.15; %m, diameter pinion
-mu_eq = 0.15; %equivalent friction coef
-w0 = 5; %rad/s, 
+% format bank
+
+%%%%%%%%%%%%%%%%%%%%% Given Constants %%%%%%%%%%%%%%%%%%%%%
+g = 9.81;  % [m/s^2]
+dD = 0.45; % [m], diameter Drum
+dR = 0.5;  % [m], diameter gear rim
+dp = 0.15; % [m], diameter pinion
+mu_eq = 0.15; % equivalent friction coefficient
+w0 = 5; % [rad/s]
 ig = 7; % gear ratio motor -> pinion
-n_sh = 3; %number of sheaves
-mpl = 24000; %kg, payload mass
-Zw = 1.2; %m, wave amplitude
-Tw = 10.0; %s, wave period
-eta_hmM = 1; %hydromechanical effiency of motor
-eta_vM = 0.94; %volumetric effiency of motor
+n_sh = 3; % number of sheaves
+mpl = 24000; % [kg], payload mass
+Zw = 1.2;  % [m], wave amplitude
+Tw = 10.0; % [s], wave period
+eta_hmM = 1;   % hydromechanical effiency of motor
+eta_vM = 0.94; % volumetric effiency of motor
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%chosen constants
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ps = 230e5; %210 bar -> Pa
-nm = 2; %number of motors
-    %motor size 63
-%Jm = 0.0012; %moment of inertia of motor
-%Dm = 22.9e-6; %cm^3 -> m^3
-    %proportional valve
-npv = 1; %number of proportional valves
-pr = 10e5; %bar -> Pa
+%%%%%%%%%%%%%%%%%%%%% Chosen Constants %%%%%%%%%%%%%%%%%%%%%
+ps = 230e5; % 210 [bar] -> [Pa]
+nm = 2; % number of motors
+    % Proportional Valve
+npv = 1; % number of proportional valves
+pr = 10e5; % [bar] -> [Pa], update spool flows below from datasheet
 %safety_factor = 1.1; % from lecture
-deltaP_spool = 4.2e5; %bar -> pa, from datasheet of cvg50 31-08
-deltaP_comp = 6e5; % bar -> pa, pg 12, cvg50
-    %counter balance valve
-ncbv = 2; %number of proportional valves
-pM_in_lower = 18e5; %choose between 10-30 [bar], higher = bigger pressure in p1, lower = cavitation
-pcr2_over = 1.3; %1.1 to 1.3
-%Qr = 350 / (6*10^4);%L/min -> m^3/s
-    %TODO: liquid
-rou = 875; %placeholder
-beta = 9e6; %very placeholder
+deltaP_spool = 4.2e5; % [bar] -> [Pa], from datasheet of cvg50 31-08
+deltaP_comp = 6e5; % [bar] -> [Pa], pg 12, cvg50
+    % Counterbalance Valve (CBV)
+ncbv = 2; % number of proportional valves
+pM_in_lower = 18e5; % choose between 10-30 [bar], higher = bigger pressure in p1, lower = cavitation
+pcr2_over = 1.3; % 1.1 to 1.3 (see tutorial 4)
+    % TODO: Liquid Properties
+rho = 875; % [kg/m^3] Liquid Density
+beta = 1000e6; % [MPa] -> [Pa] Liquid Stiffness (Bulk Modulus)
 
+%%%%%%%%%%%%%%%%% General for all configs %%%%%%%%%%%%%%%%%
+% gear ratios
+i_p = (dR/2)/(dp/2);
+iT = ig * i_p; % total gear ratio between motor and drum
+i_pl2M = (dD/2)/(2*n_sh*ig*i_p*nm); % [m]
 
-%gear ratios
-ip = (dR/2)/(dp/2);
-iT = ig * ip; %total gear ratio between motor and drum
-star = (dD/2)/(2*n_sh*ig*ip*nm); %[m]
+% Max Speed
+    % don't use transmission from payload2motor, since all motors
+    % retain the same speed (thus don't multiply with nm)
+zdot_max = (Zw * 2*pi) / Tw; % t=Tw --> cos(2pi)=1
+thetadot_D_max = zdot_max*(2*n_sh*2/dD); % max speed of drum [rad/s]
+thetadot_m_max = iT*thetadot_D_max; % [rad/s]
+thetadot_m_max_rpm = thetadot_m_max * (60/(2*pi)); % [rad/s] -> [RPM]
+MaxSpeed = table(thetadot_D_max, thetadot_m_max, thetadot_m_max_rpm)
 
-%calculating max speed
-zdot_max = (Zw * 2*pi) / Tw;
-thetadot_D_max = (4*n_sh*zdot_max)/dD %max speed of drum [rad/s], absolute value, wrong?
-thetadot_m_max = iT*thetadot_D_max %[rad/s] 
-thetadot_m_max_rpm = thetadot_m_max * (60/(2*pi)) %rad/s -> rpm
-M_M_max = ((mpl * g * dD * dp) / (4 * n_sh * dR * ig * nm)) * (1 + mu_eq * tanh(thetadot_m_max/w0))
-%max acceleration
-Zdotdot_max = -((Zw*(2*pi)^2)/(Tw^2)); %m/s^2
-thetadotdot_D_max = -(4*n_sh*Zdotdot_max)/dD; %rad/s^2
-thetadotdot_m_max = iT*thetadotdot_D_max; %[rad/s^2]
+% Max Acceleration
+zdotdot_max = -((Zw*(2*pi)^2)/(Tw^2)); % [m/s^2]
+thetadotdot_D_max = -(4*n_sh*zdotdot_max)/dD; % [rad/s^2]
+thetadotdot_m_max = iT*thetadotdot_D_max; % [rad/s^2]
+MaxAccel = table(thetadotdot_D_max, thetadotdot_m_max)
 
-%for choosing motor size
-pL_assume = (2/3) * ps; %chosen, changes for circuit B
-D_min = (2*pi * M_M_max) / pL_assume; %ps -> delta_m_p(?) %TODO: might be missing volumetric efficiency
-D_min_cm = D_min * 1e6
-D_min_rpm = 90; %largest motor we can use with 
-%auto choosing motor size
+%%%%%%%%%%%%%%%%%%%%% Chosen Specific %%%%%%%%%%%%%%%%%%%%%
+% Max Motor Moment
+M_M_max = ((mpl * g * dD * dp) / (4 * n_sh * dR * ig * nm)) * ...
+          (1 + mu_eq * tanh(thetadot_m_max/w0))
+
+% Largest motor we can use with speed < calculated above (general for all)
+D_min_rpm = 90; % [RPM]
+
+% For choosing motor size
+pL_assume = (2/3) * ps; % chosen, different between circuits
+D_min = (2*pi * M_M_max) / pL_assume; % ps -> delta_m_p(?) 
+    % TODO: might be missing volumetric efficiency
+D_min_cm = D_min * 1e6;
+MinDisplacement = table(D_min, D_min_cm, D_min_rpm)
+% Auto choosing motor size
 motorType = [4.93 10.3 12 16 22.9 28.1 32 45.6 56.1 63 80.4 ...
              90 106.7 125 160.4 180 200 250 355 500 710 1000];
-MotorJ = [0.00006 0.0004 0.0004 0.0004 0.0012 0.0012 0.0012 0.0024 0.0042 0.0042 0.0072 0.0072 ...
-    0.0116 0.0116 0.0220 0.0220]; %dosent include all of them
+MotorJ = [0.00006 0.0004 0.0004 0.0004 0.0012 0.0012 0.0012 ...
+          0.0024 0.0042 0.0042 0.0072 0.0072 0.0116 0.0116 ...
+          0.0220 0.0220 0.0353 0.061 0.102 0.178 0.55 0.55]; % [kg/m^2]
 if D_min_cm > D_min_rpm
     warning("Motor size greater than 90, increase nm")
 end
 
 for i_for = 1:length(motorType)
     if motorType(i_for) > D_min_cm
-        Dm_cm = motorType(i_for)
+        Dm_cm = motorType(i_for);
         Dm = motorType(i_for) * 1e-6;
         Jm = MotorJ(i_for);
         break
     end
 end
-Jtot = Jm + (1/2)*(mpl)*star^2; %double check
+Jtot = Jm + (mpl)*i_pl2M^2; % TODO: double check
+chosenMotor = table(Dm_cm, Dm, Jm, Jtot)
 
 %pressure
 pL_max = (M_M_max + Jtot * thetadotdot_m_max) * ((2*pi)/Dm);
 %pL = (M_M_max) * ((2*pi)/Dm);
 pL_max_bar = pL_max*1e-5
-%flow
-Qm_max_th = (Dm/(2*pi)) * thetadot_m_max; %theoretical
-Qm_max_Lpmin = Qm_max_th * 6*10^4 %for prop valve sizing
-    %leakage flow and area
-QL = (Qm_max_th*(1-eta_vM))/eta_vM;
-QL_Lpmin = QL * 6*10^4
-CdAd_L = QL/sqrt((2/rou)*pL_max);
 
-%%%proportional valve - spool
-%type: closed center, symmetric, CVGxx 31-xx
-Qm_max_total = ((Qm_max_th+QL)*nm)/(npv);
+%%%%%%%%%%%%%%%%%%%%% Circuit B Specific %%%%%%%%%%%%%%%%%%%%%
+% Theoretical Flow
+Qm_t = (Dm/(2*pi)) * thetadot_m_max; % [m^3/sec]
+Qm_t_Lpmin = Qm_t * 6*10^4; % [L/min], for proportional valve sizing
+% Leakage Flow
+QL = (Qm_t*(1-eta_vM))/eta_vM;    % [m^3/sec]
+QL_Lpmin = QL * 6*10^4;           % [L/min]
+CdAd_L = QL/sqrt((2/rho)*pL_max); % [L/min]
+
+%%%%% Proportional Valve - Spool %%%%%
+% type: closed center, symmetric, CVGxx 31-xx
+Qm_max_total = ((Qm_t+QL)*nm)/(npv);
 Qm_max_total_lMin = Qm_max_total * 6*10^4;
-spoolFlows = [60, 140, 220, 500, 820, 1000, 950, 1150];
+spoolFlows = [60, 140, 220, 500, 820, 1000, 950, 1150]; % [L/min]
 spoolTypes = ["CVG30 31-00", "CVG30 31-01", "CVG30 31-02", "CVG30 31-05",...
     "CVG50 31-08", "CVG50 31-10", "CVG60 31-10", "CVG60 31-20"];
 
 for i_for = 1:length(spoolFlows)
     if spoolFlows(i_for) > Qm_max_total_lMin
-        Q_nom_spool = spoolFlows(i_for)
-        chosenSpool = spoolTypes(i_for)
+        Q_nom_spool = spoolFlows(i_for);
+        chosenSpool = spoolTypes(i_for);
         break
     end
 end
-%crank
-Qr_spool = 1550 / 6e4; %from datasheet of CVG50 31-10 pg 14
-%Qr_spool = 1220 / 6e4; %from datasheet of CVG50 31-08 pg 14
-Qr_comp = 1150 / 6e4; %from datasheet of CVG50 @10bar pg 12
+table(Q_nom_spool, chosenSpool)
 
-CdAd_spool = Qr_spool/sqrt((2/rou) * pr); %m^3 main spool
-%CdAd_comp = Qr_comp/sqrt((2/rou) * pr); %m^3 can this be done? - doubt since Ad changes over time
+% Datasheet: Read flows @ pr [bar]
+Qr_mainSpool = 1550 / 6e4;  % [L/min] from datasheet of CVG50 31-10 pg 14
+% Qr_spool = 1220 / 6e4; % from datasheet of CVG50 31-08 pg 14
+Qr_compSpool = 1150 / 6e4;   % [L/min] from datasheet of CVG50 @10bar pg 12
 
-pcr1 = (Qm_max_total^2 * rou) / (CdAd_spool^2 *2); %3.36
+CdAd_mainSpool = Qr_mainSpool/sqrt((2/rho) * pr); % [m^3]
+CdAd_compSpool = Qr_compSpool/sqrt((2/rho) * pr); % [m^3] can this be done? - doubt since Ad changes over time
 
-%pcr1 = rou/2 * (Qm_max_total)^2 * (1/(CdAd_spool^2) + 1/(CdAd_comp^2)) - 6e5;
+pcr1 = (Qm_max_total^2 * rho) / (CdAd_mainSpool^2 * 2); % 3.36
+pcr1_bar = pcr1 * 1e-5;
 
-%delta_p_spool = (Qm_max_total^2 * rou) / (CdAd_spool^2 * 2);
-pcr1_bar = pcr1 * 1e-5 
-screw_flow_open = 500; %from datasheet of CVG50 pg 12
-screw_flow_max = 1600; %from datasheet of CVG50 31-10 pg 14
-screw_max_turns = 10;
+table(CdAd_mainSpool, CdAd_compSpool, pcr1_bar)
 
-pcr1_turns = pcr1_bar/(11/screw_max_turns) %TODO: double check, 11??? hvor kommer det fra..
+% delta_p_spool = (Qm_max_total^2 * rho) / (CdAd_spool^2 * 2);
+% pM_in = ps - (deltaP_comp + deltaP_spool); % [bar], into motor
 
-pM_in = ps - (deltaP_comp + deltaP_spool);
-
-%%%counterbalance / overbalance valve:
+%%%%% Counterbalance / Overbalance Valve %%%%%
 cbv_alpha_list = [1.5 2 2.3 3 4.5 10];
 cbv_name_list = ["CBIB" "CBIY" "CBIL" "CBIA" "CBIG" "CBIH"];
-%pM_out = pM_in - pL_max; %unsure if correct, TODO: doublec check
+% pM_out = pM_in - pL_max; % unsure if correct, TODO: double check
 pcr2 = pL_max * pcr2_over; % pL_max is very close to the method used in the examples
-pcr2_bar = pcr2 * 1e-5
-pRet = (Qm_max_total^2 * rou)/(CdAd_spool^2 * 2);
-pRet_bar = pRet * 1e-5
+pcr2_bar = pcr2 * 1e-5;
+pRet = (Qm_max_total^2 * rho)/(CdAd_mainSpool^2 * 2);
+pRet_bar = pRet * 1e-5;
 p1 = ((M_M_max * 2 * pi) / Dm);
 alpha_max = (p1 + pM_in_lower - pcr2 - pRet) / (pRet - pM_in_lower); % wrong?
 
 for i_for = 1:length(cbv_alpha_list)
     if cbv_alpha_list(i_for) > alpha_max
-        alpha_cbv = cbv_alpha_list(i_for-1)
-        cbv_type = cbv_name_list(i_for-1)
+        alpha_cbv = cbv_alpha_list(i_for-1);
+        cbv_type = cbv_name_list(i_for-1);
         break
     end
 end
+cbvStats = table(pcr2_bar, pRet_bar, alpha_max, alpha_cbv, cbv_type)
 
 pM_in_lower = (p1 - pcr2 + pRet*(-1 -alpha_cbv))/((-1 -alpha_cbv));
 pM_in_lower_bar = pM_in_lower * 1e-5
-max_capacity = 480; %L/min
+max_capacity = 480; % [L/min]
 n_cbv_min = ceil(Qm_max_total_lMin/max_capacity)
 
-save("B_vars.mat")
+% save("B_vars.mat")
