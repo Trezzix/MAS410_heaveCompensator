@@ -17,8 +17,8 @@ eta_hmM = 1;   % hydromechanical effiency of motor
 eta_vM = 0.94; % volumetric effiency of motor
 
 %%%%%%%%%%%%%%%%%%%%% Chosen Constants %%%%%%%%%%%%%%%%%%%%%
-ps = 220e5; % 210 [bar] -> [Pa]
-nm = 1; % number of motors
+ps = 200e5; % 210 [bar] -> [Pa]
+nm = 3; % number of motors
     % Servo Valve
 nv = 1; % number of servo valves
 pr = 10e5; % [bar] -> [Pa]
@@ -71,7 +71,7 @@ MotorJ = [0.00006 0.0004 0.0004 0.0004 0.0012 0.0012 0.0012 ...
           0.0024 0.0042 0.0042 0.0072 0.0072 0.0116 0.0116 ...
           0.0220 0.0220 0.0353 0.061 0.102 0.178 0.55 0.55]; % [kg/m^2]
 if D_min_cm > Dmax_minRPM
-    warning("Motor size greater than 90, increase nm")
+    error("Motor size greater than 90, increase nm")
 end
 
 % Find smallest motor above minimum
