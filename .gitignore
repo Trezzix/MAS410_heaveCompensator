@@ -27,3 +27,6 @@ octave-workspace
 
 # Simulink Cache File (build artifacts)
 *.slxc
+
+# Drawing backup files
+*.bak
