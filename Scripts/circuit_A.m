@@ -17,8 +17,8 @@ eta_hmM = 1;   % hydromechanical effiency of motor
 eta_vM = 0.94; % volumetric effiency of motor
 
 %%%%%%%%%%%%%%%%%%%%% Chosen Constants %%%%%%%%%%%%%%%%%%%%%
-ps = 200e5; % 210 [bar] -> [Pa]
-nm = 3; % number of motors
+ps = 230e5; % 210 [bar] -> [Pa]
+nm = 2; % number of motors
     % Servo Valve
 nv = 1; % number of servo valves
 pr = 10e5; % [bar] -> [Pa]
@@ -85,7 +85,7 @@ for i_for = 1:length(motorType)
 end
 Jpl = (mpl)*i_pl2M^2; % [kg*m^2], payload inertia
 Jtot = Jm + Jpl;      % [kg*m^2], total inertia
-chosenMotor = table(Dm_cm, Dm, Jm, Jtot)
+chosenMotor = table(Dm_cm, Dm, Jm, Jpl, Jtot)
 
 % pressure
 pL_max = (M_M_max + Jtot * thetadotdot_m_max) * ((2*pi)/Dm);
