@@ -23,7 +23,7 @@ slprj/
 octave-workspace
 
 # Simulink autosave extension
-.autosave
+*.autosave
 
 # Simulink Cache File (build artifacts)
 *.slxc
