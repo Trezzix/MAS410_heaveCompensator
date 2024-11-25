@@ -17,8 +17,8 @@ eta_hmM = 1;   % hydromechanical effiency of motor
 eta_vM = 0.94; % volumetric effiency of motor
 
 %%%%%%%%%%%%%%%%%%%%% Chosen Constants %%%%%%%%%%%%%%%%%%%%%
-ps = 230e5; % 210 [bar] -> [Pa]
-nm = 2; % number of motors
+ps = 200e5; % 210 [bar] -> [Pa]
+nm = 3; % number of motors
     % Servo Valve
 nv = 1; % number of servo valves
 pr = 10e5; % [bar] -> [Pa]
@@ -31,7 +31,7 @@ beta = 1000e6; % [MPa] -> [Pa] Liquid Stiffness (Bulk Modulus)
 % gear ratios
 i_p = (dR/2)/(dp/2);
 iT = ig * i_p; % total gear ratio between motor and drum
-i_pl2M = (dD/2)/(2*n_sh*ig*i_p*nm); % [m]
+i_pl2M = (dD/2)/(2*n_sh*ig*i_p); % [m]
 
 % Max Speed
     % don't use transmission from payload2motor, since all motors
@@ -84,7 +84,7 @@ for i_for = 1:length(motorType)
     end
 end
 Jpl = (mpl)*i_pl2M^2; % [kg*m^2], payload inertia
-Jtot = Jm + Jpl;      % [kg*m^2], total inertia
+Jtot = Jm*nm + Jpl;      % [kg*m^2], total inertia
 chosenMotor = table(Dm_cm, Dm, Jm, Jpl, Jtot)
 
 % pressure
