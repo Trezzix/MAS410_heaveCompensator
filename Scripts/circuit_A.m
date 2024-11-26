@@ -17,7 +17,7 @@ eta_hmM = 1;   % hydromechanical effiency of motor
 eta_vM = 0.94; % volumetric effiency of motor
 
 %%%%%%%%%%%%%%%%%%%%% Chosen Constants %%%%%%%%%%%%%%%%%%%%%
-ps = 200e5; % 210 [bar] -> [Pa]
+ps = 220e5; % 210 [bar] -> [Pa]
 nm = 3; % number of motors
     % Servo Valve
 nv = 1; % number of servo valves
