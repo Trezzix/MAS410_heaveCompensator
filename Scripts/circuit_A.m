@@ -105,7 +105,15 @@ QL = (Qm_t*(1-eta_vM))/eta_vM;    % [m^3/sec]
 QL_Lpmin = QL * 6*10^4;           % [L/min]
 CdAd_L = QL/sqrt((2/rho)*pL_leakage_motor_max); % [m^2]
 Cd_L = 0.6;
-Ad_L = CdAd_L/Cd_L % [m^2]
+Ad_L = CdAd_L/Cd_L; % [m^2]
+% Failure - High Leakage Flow
+eta_vM = 0.50; % 50 percent
+QL = (Qm_t*(1-eta_vM))/eta_vM;    % [m^3/sec]
+% QL_Lpmin = QL * 6*10^4;           % [L/min]
+CdAd_L = QL/sqrt((2/rho)*pL_leakage_motor_max); % [m^2]
+Ad_L_fault = CdAd_L/Cd_L; % [m^2]
+
+leakageFlows = table(Cd_L, Ad_L, Ad_L_fault)
 
 % Servo valve sizing
 Qm_NL_total = ((Qm_NL)*nm)/(nv);
