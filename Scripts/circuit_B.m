@@ -177,3 +177,8 @@ pM_in_lower = (p1 - pcr2 + pRet*(-1 -alpha_cbv))/((-1 -alpha_cbv));
 pM_in_lower_bar = pM_in_lower * 1e-5
 max_capacity = 480; % [L/min]
 n_cbv_min = ceil(Qm_max_total_lpmin/max_capacity)
+
+Q_free_flow_chk = 280 / 6e4; % [l/min]
+Q_free_flow_cbv = 330 / 6e4; % [l/min]
+CdAd_chk =      Q_free_flow_chk/sqrt((2/rho) * pr); % [m^2]
+CdAd_cbv_free = Q_free_flow_cbv/sqrt((2/rho) * pr); % [m^2]
