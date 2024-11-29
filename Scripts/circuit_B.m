@@ -163,7 +163,6 @@ p1 = ((M_M_max * 2 * pi) / Dm);
 % alpha_max = (p1 + pM_in_lower - pcr2 - pRet) / (pRet - pM_in_lower); % wrong?
 alpha_max = (pL_max + pM_in_lower - pcr2 - pRet) / (pRet - pM_in_lower);
 
-
 % Smallest CBV with sufficient alpha
 for i_for = 1:length(cbv_alpha_list)
     if cbv_alpha_list(i_for) > alpha_max
