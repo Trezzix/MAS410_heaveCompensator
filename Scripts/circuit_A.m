@@ -23,7 +23,7 @@ nm = 3; % number of motors
 nv = 1; % number of servo valves
 pr = 10e5; % [bar] -> [Pa]
 safety_factor = 1.1; % from lecture
-    % TODO: Liquid Properties
+    % Liquid Properties
 rho = 875; % [kg/m^3] Liquid Density
 beta = 1000e6; % [MPa] -> [Pa] Liquid Stiffness (Bulk Modulus)
 
@@ -139,3 +139,10 @@ CdAd = Qr/sqrt((2/rho) * pr);
 Cd = 0.6;
 Ad = CdAd/Cd;
 servoCdAd = table(Cd, Ad)
+
+V1 = 1e-3; % [m^3]
+V2 = V1;
+Vtot = V1+V2;
+k_theta = beta*Dm^2/(pi^2*(Dm+Vtot));
+omega_n = sqrt(k_theta/Jtot);
+omega_nMin = omega_n*3
