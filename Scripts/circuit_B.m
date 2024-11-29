@@ -32,6 +32,9 @@ pcr2_over = 1.3; % 1.1 to 1.3 (see tutorial 4)
 rho = 875; % [kg/m^3] Liquid Density
 beta = 1000e6; % [MPa] -> [Pa] Liquid Stiffness (Bulk Modulus)
 
+% Failure variables
+eta_vM_failure = 0.50; % 50 percent
+
 % [WARNING] Remember to update datasheet Qr from lines 130 onwards!
 
 %%%%%%%%%%%%%%%%% General for all configs %%%%%%%%%%%%%%%%%
@@ -104,11 +107,17 @@ pL_max_bar = pL_max*1e-5
 Qm_t = (Dm/(2*pi)) * thetadot_m_max; % [m^3/sec]
 Qm_t_Lpmin = Qm_t * 6*10^4; % [L/min], for proportional valve sizing
 % Leakage Flow
+pL_leakage_motor_max = 350e5; % [bar] from motor datasheet
 QL = (Qm_t*(1-eta_vM))/eta_vM;    % [m^3/sec]
 QL_Lpmin = QL * 6*10^4;           % [L/min]
-CdAd_L = QL/sqrt((2/rho)*pL_max); % [m^2]
+CdAd_L = QL/sqrt((2/rho)*pL_leakage_motor_max); % [m^2]
 Cd_L = 0.6;
 Ad_L = CdAd_L/Cd_L; % [m^2]
+% Failure - High Leakage Flow
+QL_fail = (Qm_t*(1-eta_vM_failure))/eta_vM_failure;    % [m^3/sec]
+% QL_Lpmin = QL * 6*10^4;           % [L/min]
+CdAd_L_fault = QL_fail/sqrt((2/rho)*pL_leakage_motor_max); % [m^2]
+Ad_L_fault = CdAd_L_fault/Cd_L; % [m^2]
 
 %%%%% Proportional Valve - Spool %%%%%
 % type: closed center, symmetric, CVGxx 31-xx, datasheet page 16
@@ -135,7 +144,11 @@ Qr_compSpool = 1150 / 6e4;   % [L/min] from datasheet of CVG50 @10bar pg 12
 
 % Coefficients and areas for main & compensator spools
 CdAd_mainSpool = Qr_mainSpool/sqrt((2/rho) * pr); % [m^2]
+Cd = 0.6;
+Ad = CdAd_mainSpool/Cd;
 CdAd_compSpool = Qr_compSpool/sqrt((2/rho) * pr); % [m^2]
+Cd_comp = Cd;
+Ad_comp = CdAd_compSpool/Cd_comp;
 
 % Compensator Spring
 pcr1 = (Qm_max_total^2 * rho) / (CdAd_mainSpool^2 * 2); % 3.36
@@ -181,4 +194,8 @@ n_cbv_min = ceil(Qm_max_total_lpmin/max_capacity)
 Q_free_flow_chk = 280 / 6e4; % [l/min]
 Q_free_flow_cbv = 330 / 6e4; % [l/min]
 CdAd_chk =      Q_free_flow_chk/sqrt((2/rho) * pr); % [m^2]
+CdCHK = Cd;
+AdCHK = CdAd_chk/CdCHK;
 CdAd_cbv_free = Q_free_flow_cbv/sqrt((2/rho) * pr); % [m^2]
+CdCBV = Cd;
+AdCBV = CdAd_cbv_free/CdCBV;

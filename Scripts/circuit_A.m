@@ -103,17 +103,17 @@ Qm_t_Lpmin = Qm_t * 6*10^4;          % [L/min]
 Qm_NL = Qm_t * sqrt(ps/(ps - pL_max)); % [m^3/sec]
 Qm_NL_Lpmin = Qm_NL * 6*10^4;          % [L/min]
 % Leakage Flow
-pL_leakage_motor_max = 350e5;
+pL_leakage_motor_max = 350e5; % [bar] from motor datasheet
 QL = (Qm_t*(1-eta_vM))/eta_vM;    % [m^3/sec]
 QL_Lpmin = QL * 6*10^4;           % [L/min]
 CdAd_L = QL/sqrt((2/rho)*pL_leakage_motor_max); % [m^2]
 Cd_L = 0.6;
 Ad_L = CdAd_L/Cd_L; % [m^2]
 % Failure - High Leakage Flow
-QL = (Qm_t*(1-eta_vM_failure))/eta_vM_failure;    % [m^3/sec]
+QL_fail = (Qm_t*(1-eta_vM_failure))/eta_vM_failure;    % [m^3/sec]
 % QL_Lpmin = QL * 6*10^4;           % [L/min]
-CdAd_L = QL/sqrt((2/rho)*pL_leakage_motor_max); % [m^2]
-Ad_L_fault = CdAd_L/Cd_L; % [m^2]
+CdAd_L_fault = QL_fail/sqrt((2/rho)*pL_leakage_motor_max); % [m^2]
+Ad_L_fault = CdAd_L_fault/Cd_L; % [m^2]
 
 leakageFlows = table(Cd_L, Ad_L, Ad_L_fault)
 
