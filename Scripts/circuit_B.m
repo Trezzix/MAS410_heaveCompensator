@@ -25,8 +25,8 @@ pr = 10e5; % [bar] -> [Pa], update spool flows below from datasheet
 deltaP_spool = 4.2e5; % [bar] -> [Pa], from datasheet of cvg50 31-08
 deltaP_comp = 6e5; % [bar] -> [Pa], pg 12, cvg50
     % Counterbalance Valve (CBV)
-ncbv = 2; % number of proportional valves
-pM_in_lower = 18e5; % choose between 10-30 [bar], higher = bigger pressure in p1, lower = cavitation
+ncbv = 2; % number of CBV
+pB = 18e5; % choose between 10-30 [bar], higher = bigger pressure in p1, lower = cavitation
 pcr2_over = 1.3; % 1.1 to 1.3 (see tutorial 4)
     % Liquid Properties
 rho = 875; % [kg/m^3] Liquid Density
@@ -41,7 +41,7 @@ eta_vM_failure = 0.50; % 50 percent
 % gear ratios
 i_p = (dR/2)/(dp/2);
 iT = ig * i_p; % total gear ratio between motor and drum
-i_pl2M = (dD/2)/(2*n_sh*ig*i_p*nm); % [m]
+i_pl2M = (dD/2)/(2*n_sh*ig*i_p); % [m]
 
 % Max Speed
     % don't use transmission from payload2motor, since all motors
@@ -97,7 +97,7 @@ Jpl = (mpl)*i_pl2M^2; % [kg*m^2], payload inertia
 Jtot = Jm*nm + Jpl;      % [kg*m^2], total inertia
 chosenMotor = table(Dm_cm, Dm, Jm, Jpl, Jtot)
 
-%pressure
+% pressure
 pL_max = (M_M_max + Jtot * thetadotdot_m_max) * ((2*pi)/Dm);
 % pL = (M_M_max) * ((2*pi)/Dm);
 pL_max_bar = pL_max*1e-5
@@ -118,6 +118,8 @@ QL_fail = (Qm_t*(1-eta_vM_failure))/eta_vM_failure;    % [m^3/sec]
 % QL_Lpmin = QL * 6*10^4;           % [L/min]
 CdAd_L_fault = QL_fail/sqrt((2/rho)*pL_leakage_motor_max); % [m^2]
 Ad_L_fault = CdAd_L_fault/Cd_L; % [m^2]
+
+leakageFlows = table(Cd_L, Ad_L, Ad_L_fault)
 
 %%%%% Proportional Valve - Spool %%%%%
 % type: closed center, symmetric, CVGxx 31-xx, datasheet page 16
@@ -171,10 +173,10 @@ pcr2_bar = pcr2 * 1e-5;
 pRet = (Qm_max_total^2 * rho)/(CdAd_mainSpool^2 * 2); % 3.36
 pRet_bar = pRet * 1e-5;
 % Motor A-side Pressure
-p1 = ((M_M_max * 2 * pi) / Dm);
-% Pilot Ratio
-% alpha_max = (p1 + pM_in_lower - pcr2 - pRet) / (pRet - pM_in_lower); % wrong?
-alpha_max = (pL_max + pM_in_lower - pcr2 - pRet) / (pRet - pM_in_lower);
+p1 = ((M_M_max * 2 * pi) / Dm) + pB;
+    % Pilot Ratio
+% alpha_max = (p1 - pcr2 - pRet) / (pRet - pB); % wrong?
+alpha_max = (pL_max + pB - pcr2 - pRet) / (pRet - pB);
 
 % Smallest CBV with sufficient alpha
 for i_for = 1:length(cbv_alpha_list)
@@ -186,16 +188,20 @@ for i_for = 1:length(cbv_alpha_list)
 end
 cbvStats = table(pcr2_bar, pRet_bar, alpha_max, alpha_cbv, cbv_type)
 
-pM_in_lower = (p1 - pcr2 + pRet*(-1 -alpha_cbv))/((-1 -alpha_cbv));
-pM_in_lower_bar = pM_in_lower * 1e-5
-max_capacity = 480; % [L/min]
-n_cbv_min = ceil(Qm_max_total_lpmin/max_capacity)
+% pB = (p1 - pcr2 + pRet*(-1 -alpha_cbv))/((-1 -alpha_cbv));
+% pB_bar = pB * 1e-5
+% max_capacity = 480; % [L/min]
+% n_cbv_min = ceil(Qm_max_total_lpmin/max_capacity)
 
-Q_free_flow_chk = 280 / 6e4; % [l/min]
-Q_free_flow_cbv = 330 / 6e4; % [l/min]
-CdAd_chk =      Q_free_flow_chk/sqrt((2/rho) * pr); % [m^2]
+% Q_free_flow_chk = 320 / 6e4; % [l/min]
+% Q_free_flow_cbv = 330 / 6e4; % [l/min]
+Q_free_flow_chk = 480 / 6e4; % [l/min]
+Q_free_flow_cbv = 480 / 6e4; % [l/min]
+pCHK = 22e5; % [Pa]
+pCBV = 30e5; % [Pa]
+CdAd_chk =      Q_free_flow_chk/sqrt((2/rho) * pCHK); % [m^2]
 CdCHK = Cd;
 AdCHK = CdAd_chk/CdCHK;
-CdAd_cbv_free = Q_free_flow_cbv/sqrt((2/rho) * pr); % [m^2]
+CdAd_cbv_free = Q_free_flow_cbv/sqrt((2/rho) * pCBV); % [m^2]
 CdCBV = Cd;
 AdCBV = CdAd_cbv_free/CdCBV;
