@@ -17,7 +17,7 @@ eta_hmM = 1;   % hydromechanical effiency of motor
 eta_vM = 0.94; % volumetric effiency of motor
 
 %%%%%%%%%%%%%%%%%%%%% Chosen Constants %%%%%%%%%%%%%%%%%%%%%
-ps = 220e5; % 210 [bar] -> [Pa]
+ps = 220e5; % [bar] -> [Pa]
 nm = 3; % number of motors
     % Proportional Valve
 npv = 1; % number of proportional valves
@@ -140,15 +140,19 @@ end
 table(Q_nom_spool, chosenSpool)
 
 % Datasheet: Read flows @ pr [bar]
-Qr_mainSpool = 1550 / 6e4;  % [L/min] from datasheet of CVG50 31-10 pg 14
+% Qr_mainSpool = 1550 / 6e4;  % [L/min] from datasheet of CVG50 31-10 pg 14
 % Qr_spool = 1220 / 6e4; % from datasheet of CVG50 31-08 pg 14
-Qr_compSpool = 1150 / 6e4;   % [L/min] from datasheet of CVG50 @10bar pg 12
+% Qr_compSpool = 1150 / 6e4;   % [L/min] from datasheet of CVG50 @10bar pg 12
+
+prMain = 3.3e5; % [Pa]
+% prComp = 6.5e5; % [Pa]
+prComp = prMain;
 
 % Coefficients and areas for main & compensator spools
-CdAd_mainSpool = Qr_mainSpool/sqrt((2/rho) * pr); % [m^2]
+CdAd_mainSpool = Qm_max_total/sqrt((2/rho) * prMain); % [m^2]
 Cd = 0.6;
 Ad = CdAd_mainSpool/Cd;
-CdAd_compSpool = Qr_compSpool/sqrt((2/rho) * pr); % [m^2]
+CdAd_compSpool = Qm_max_total/sqrt((2/rho) * prComp); % [m^2]
 Cd_comp = Cd;
 Ad_comp = CdAd_compSpool/Cd_comp;
 
