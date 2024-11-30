@@ -21,7 +21,8 @@ ps = 220e5; % [bar] -> [Pa]
 nm = 3; % number of motors
     % Proportional Valve
 npv = 1; % number of proportional valves
-pr = 10e5; % [bar] -> [Pa], update spool flows below from datasheet
+% pr = 10e5; % [bar] -> [Pa], update spool flows below from datasheet
+pN = 350e5; % [Pa] Nominal pressure from datasheet
 deltaP_spool = 4.2e5; % [bar] -> [Pa], from datasheet of cvg50 31-08
 deltaP_comp = 6e5; % [bar] -> [Pa], pg 12, cvg50
     % Counterbalance Valve (CBV)
@@ -146,7 +147,7 @@ table(Q_nom_spool, chosenSpool)
 
 prMain = 3.3e5; % [Pa]
 % prComp = 6.5e5; % [Pa]
-prComp = prMain;
+prComp = 6.5e5; % [Pa]
 
 % Coefficients and areas for main & compensator spools
 CdAd_mainSpool = Qm_max_total/sqrt((2/rho) * prMain); % [m^2]
@@ -157,10 +158,10 @@ Cd_comp = Cd;
 Ad_comp = CdAd_compSpool/Cd_comp;
 
 % Compensator Spring
-pcr1 = (Qm_max_total^2 * rho) / (CdAd_mainSpool^2 * 2); % 3.36
-pcr1_bar = pcr1 * 1e-5;
-
-table(CdAd_mainSpool, CdAd_compSpool, pcr1_bar)
+% pcr1 = (Qm_max_total^2 * rho) / (CdAd_mainSpool^2 * 2); % 3.36
+% pcr1_bar = pcr1 * 1e-5;
+% 
+% table(CdAd_mainSpool, CdAd_compSpool, pcr1_bar)
 
 % delta_p_spool = (Qm_max_total^2 * rho) / (CdAd_spool^2 * 2);
 % pM_in = ps - (deltaP_comp + deltaP_spool); % [bar], into motor
