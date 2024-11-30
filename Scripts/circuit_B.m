@@ -21,8 +21,7 @@ ps = 220e5; % [bar] -> [Pa]
 nm = 3; % number of motors
     % Proportional Valve
 npv = 1; % number of proportional valves
-% pr = 10e5; % [bar] -> [Pa], update spool flows below from datasheet
-pN = 350e5; % [Pa] Nominal pressure from datasheet
+pN_m = 350e5; % [Pa] Nominal pressure from datasheet
 deltaP_spool = 4.2e5; % [bar] -> [Pa], from datasheet of cvg50 31-08
 deltaP_comp = 6e5; % [bar] -> [Pa], pg 12, cvg50
     % Counterbalance Valve (CBV)
