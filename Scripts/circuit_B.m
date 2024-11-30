@@ -179,13 +179,6 @@ alpha_max = (pAm - pcr2 - pA) / (pA - pB);
 % alpha_max = (pL_max + pB - pcr2 - pA) / (pA - pB);
 
 % Smallest CBV with sufficient alpha
-% for i_for = 1:length(cbv_alpha_list)
-%     if cbv_alpha_list(i_for) > alpha_max
-%         alpha_cbv = cbv_alpha_list(i_for-1);
-%         cbv_type = cbv_name_list(i_for-1);
-%         break
-%     end
-% enda
 diffList_CBValpha = cbv_alpha_list - alpha_max;
 [~, alphaIDX] = min(abs(diffList_CBValpha));
 alpha_cbv = cbv_alpha_list(alphaIDX);
