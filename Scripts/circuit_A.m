@@ -22,6 +22,7 @@ nm = 3; % number of motors
     % Servo Valve
 nv = 1; % number of servo valves
 pr = 10e5; % [bar] -> [Pa]
+pN_m = 350e5; % [Pa] nominal pressure motor
 safety_factor = 1.1; % from lecture
     % Liquid Properties
 rho = 875; % [kg/m^3] Liquid Density
@@ -92,7 +93,7 @@ chosenMotor = table(Dm_cm, Dm, Jm, Jpl, Jtot)
 
 % pressure
 pL_max = (M_M_max + Jtot * thetadotdot_m_max) * ((2*pi)/Dm);
-% pL = (M_M_max) * ((2*pi)/Dm);
+% pL_max = (M_M_max) * ((2*pi)/Dm);
 pL_max_bar = pL_max*1e-5
 
 %%%%%%%%%%%%%%%%%%%%% Circuit A Specific %%%%%%%%%%%%%%%%%%%%%
