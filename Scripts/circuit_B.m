@@ -99,8 +99,8 @@ Jtot = Jm*nm + Jpl;      % [kg*m^2], total inertia
 chosenMotor = table(Dm_cm, Dm, Jm, Jpl, Jtot)
 
 % pressure
-pL_max = (M_M_max + Jtot * thetadotdot_m_max) * ((2*pi)/Dm);
-% pL = (M_M_max) * ((2*pi)/Dm);
+% pL_max = (M_M_max + Jtot * thetadotdot_m_max) * ((2*pi)/Dm);
+pL_max = (M_M_max) * ((2*pi)/Dm);
 pL_max_bar = pL_max*1e-5
 
 %%%%%%%%%%%%%%%%%%%%% Circuit B Specific %%%%%%%%%%%%%%%%%%%%%
@@ -140,14 +140,9 @@ for i_for = 1:length(spoolFlows)
 end
 table(Q_nom_spool, chosenSpool)
 
-% Datasheet: Read flows @ pr [bar]
-% Qr_mainSpool = 1550 / 6e4;  % [L/min] from datasheet of CVG50 31-10 pg 14
-% Qr_spool = 1220 / 6e4; % from datasheet of CVG50 31-08 pg 14
-% Qr_compSpool = 1150 / 6e4;   % [L/min] from datasheet of CVG50 @10bar pg 12
-
-prMain = 3.3e5; % [Pa]
-% prComp = 6.5e5; % [Pa]
-prComp = 6.5e5; % [Pa]
+% Datasheet: Read pressure @ Qm_max_total [L/min]
+prMain = 3.3e5; % [Pa] from datasheet - CVG50 31-10 page 14
+prComp = 6.5e5; % [Pa] from datasheet - CVG50 31-10 page 12
 
 % Coefficients and areas for main & compensator spools
 CdAd_mainSpool = Qm_max_total/sqrt((2/rho) * prMain); % [m^2]
@@ -175,28 +170,35 @@ cbv_name_list = ["CBIB" "CBIY" "CBIL" "CBIA" "CBIG" "CBIH"];
 pcr2 = pL_max * pcr2_over; % pL_max is very close to the method used in the examples
 pcr2_bar = pcr2 * 1e-5;
 % Return pressure: A-side Valve
-pRet = (Qm_max_total^2 * rho)/(CdAd_mainSpool^2 * 2); % 3.36
-pRet_bar = pRet * 1e-5;
+pTank = 0e5; % [Pa]
+pA = (Qm_max_total^2 * rho)/(CdAd_mainSpool^2 * 2) + pTank; % 3.36
+pA_bar = pA * 1e-5;
 % Motor A-side Pressure
-p1 = ((M_M_max * 2 * pi) / Dm) + pB;
+pAm = ((M_M_max * 2 * pi) / Dm) + pB;
     % Pilot Ratio
-% alpha_max = (p1 - pcr2 - pRet) / (pRet - pB); % wrong?
-alpha_max = (pL_max + pB - pcr2 - pRet) / (pRet - pB);
+alpha_max = (pAm - pcr2 - pA) / (pA - pB);
+% alpha_max = (pL_max + pB - pcr2 - pA) / (pA - pB);
 
 % Smallest CBV with sufficient alpha
-for i_for = 1:length(cbv_alpha_list)
-    if cbv_alpha_list(i_for) > alpha_max
-        alpha_cbv = cbv_alpha_list(i_for-1);
-        cbv_type = cbv_name_list(i_for-1);
-        break
-    end
-end
-cbvStats = table(pcr2_bar, pRet_bar, alpha_max, alpha_cbv, cbv_type)
+% for i_for = 1:length(cbv_alpha_list)
+%     if cbv_alpha_list(i_for) > alpha_max
+%         alpha_cbv = cbv_alpha_list(i_for-1);
+%         cbv_type = cbv_name_list(i_for-1);
+%         break
+%     end
+% enda
+diffList_CBValpha = cbv_alpha_list - alpha_max;
+[~, alphaIDX] = min(abs(diffList_CBValpha));
+alpha_cbv = cbv_alpha_list(alphaIDX);
+cbv_type = cbv_name_list(alphaIDX);
 
-% pB = (p1 - pcr2 + pRet*(-1 -alpha_cbv))/((-1 -alpha_cbv));
-% pB_bar = pB * 1e-5
-% max_capacity = 480; % [L/min]
-% n_cbv_min = ceil(Qm_max_total_lpmin/max_capacity)
+cbvStats = table(pcr2_bar, pA_bar, alpha_max, alpha_cbv, cbv_type)
+
+% pB = (pAm - pcr2 + pA*(-1 -alpha_cbv))/((-1 -alpha_cbv));
+pB = (pcr2 + (1+alpha_cbv)*pA - pAm);
+pB_bar = pB * 1e-5
+max_capacity = 480; % [L/min]
+n_cbv_min = ceil(Qm_max_total_lpmin/max_capacity)
 
 % Q_free_flow_chk = 320 / 6e4; % [l/min]
 % Q_free_flow_cbv = 330 / 6e4; % [l/min]
@@ -210,3 +212,15 @@ AdCHK = CdAd_chk/CdCHK;
 CdAd_cbv_free = Q_free_flow_cbv/sqrt((2/rho) * pCBV); % [m^2]
 CdCBV = Cd;
 AdCBV = CdAd_cbv_free/CdCBV;
+
+%%%%%%%%%%%%%%%%%%%%%%%% Valve Dynamics %%%%%%%%%%%%%%%%%%%%%%%%
+% Read datasheet CVG50 step response - page 12
+
+Tp = 390e-3; % [sec]
+cMax   = 14.0001; % [mm]
+cFinal = 14.0; % [mm]
+OS = (cMax - cFinal)/cFinal;
+zeta = (-log(OS))/sqrt(pi^2 + (log(OS))^2); % log = ln for MATLAB :)
+wn = pi/(Tp*sqrt(1-zeta^2));
+
+dynamics = table(wn, zeta)
