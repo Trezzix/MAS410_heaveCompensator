@@ -2,7 +2,7 @@
 
 *Project for the MSc. course MAS410 Hydraulic Components and Systems*
 
-<img src="Figures/projectImage.png" alt="drawing" width="450"/> \
+<img src="Figures/ProjectMainPage_invert.svg" alt="drawing" width="450"/> \
 The project's primary focus is to make a heave compensator for the 
 system shown above with design and control of two hydraulic circuits:
 
