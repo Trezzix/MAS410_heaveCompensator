@@ -22,8 +22,6 @@ nm = 3; % number of motors
     % Proportional Valve
 npv = 1; % number of proportional valves
 pN_m = 350e5; % [Pa] Nominal pressure from datasheet
-deltaP_spool = 4.2e5; % [bar] -> [Pa], from datasheet of cvg50 31-08
-deltaP_comp = 6e5; % [bar] -> [Pa], pg 12, cvg50
     % Counterbalance Valve (CBV)
 ncbv = 2; % number of CBV
 pB = 18e5; % choose between 10-30 [bar], higher = bigger pressure in p1, lower = cavitation
@@ -50,13 +48,15 @@ zdot_max = (Zw * 2*pi) / Tw; % t=Tw --> cos(2pi)=1
 thetadot_D_max = zdot_max*(2*n_sh*2/dD); % max speed of drum [rad/s]
 thetadot_m_max = iT*thetadot_D_max; % [rad/s]
 thetadot_m_max_rpm = thetadot_m_max * (60/(2*pi)); % [rad/s] -> [RPM]
-MaxSpeed = table(thetadot_D_max, thetadot_m_max, thetadot_m_max_rpm)
+thetaDotMax_v2 = zdot_max/i_pl2M;
+MaxSpeed = table(thetadot_D_max, thetadot_m_max, thetadot_m_max_rpm, thetaDotMax_v2)
 
 % Max Acceleration
-zdotdot_max = -((Zw*(2*pi)^2)/(Tw^2)); % [m/s^2]
-thetadotdot_D_max = -(4*n_sh*zdotdot_max)/dD; % [rad/s^2]
+zdotdot_max = abs(-((Zw*(2*pi)^2)/(Tw^2))); % [m/s^2]
+thetadotdot_D_max = (4*n_sh*zdotdot_max)/dD; % [rad/s^2]
 thetadotdot_m_max = iT*thetadotdot_D_max; % [rad/s^2]
-MaxAccel = table(thetadotdot_D_max, thetadotdot_m_max)
+thetaDotDotMax_v2 = zdotdot_max/i_pl2M;
+MaxAccel = table(thetadotdot_D_max, thetadotdot_m_max, thetaDotDotMax_v2)
 
 %%%%%%%%%%%%%%%%%%%%% Chosen Specific %%%%%%%%%%%%%%%%%%%%%
     % Volumetric Efficiency taken into account in Leakage flow below
@@ -97,12 +97,11 @@ Jpl = (mpl)*i_pl2M^2; % [kg*m^2], payload inertia
 Jtot = Jm*nm + Jpl;      % [kg*m^2], total inertia
 chosenMotor = table(Dm_cm, Dm, Jm, Jpl, Jtot)
 
-% pressure
-% pL_max = (M_M_max + Jtot * thetadotdot_m_max) * ((2*pi)/Dm);
-pL_max = (M_M_max) * ((2*pi)/Dm);
-pL_max_bar = pL_max*1e-5
-
 %%%%%%%%%%%%%%%%%%%%% Circuit B Specific %%%%%%%%%%%%%%%%%%%%%
+% pressure
+d_pL = (M_M_max) * ((2*pi)/Dm);
+d_pL_bar = d_pL*1e-5
+
 % Theoretical Flow
 Qm_t = (Dm/(2*pi)) * thetadot_m_max; % [m^3/sec]
 Qm_t_Lpmin = Qm_t * 6*10^4; % [L/min], for proportional valve sizing
@@ -151,22 +150,13 @@ CdAd_compSpool = Qm_max_total/sqrt((2/rho) * prComp); % [m^2]
 Cd_comp = Cd;
 Ad_comp = CdAd_compSpool/Cd_comp;
 
-% Compensator Spring
-% pcr1 = (Qm_max_total^2 * rho) / (CdAd_mainSpool^2 * 2); % 3.36
-% pcr1_bar = pcr1 * 1e-5;
-% 
-% table(CdAd_mainSpool, CdAd_compSpool, pcr1_bar)
-
-% delta_p_spool = (Qm_max_total^2 * rho) / (CdAd_spool^2 * 2);
-% pM_in = ps - (deltaP_comp + deltaP_spool); % [bar], into motor
-
 %%%%% Counterbalance / Overbalance Valve %%%%%
     % Only during lowering, otherwise only goes through check valve
 cbv_alpha_list = [1.5 2 2.3 3 4.5 10];
 cbv_name_list = ["CBIB" "CBIY" "CBIL" "CBIA" "CBIG" "CBIH"];
 % pM_out = pM_in - pL_max; % unsure if correct, TODO: double check
 % CBV Spring
-pcr2 = pL_max * pcr2_over; % pL_max is very close to the method used in the examples
+pcr2 = d_pL * pcr2_over; % d_pL is very close to the method used in the examples
 pcr2_bar = pcr2 * 1e-5;
 % Return pressure: A-side Valve
 pTank = 0e5; % [Pa]
@@ -176,7 +166,7 @@ pA_bar = pA * 1e-5;
 pAm = ((M_M_max * 2 * pi) / Dm) + pB;
     % Pilot Ratio
 alpha_max = (pAm - pcr2 - pA) / (pA - pB);
-% alpha_max = (pL_max + pB - pcr2 - pA) / (pA - pB);
+% alpha_max = (d_pL + pB - pcr2 - pA) / (pA - pB);
 
 % Closest CBV with sufficient alpha
 diffList_CBValpha = cbv_alpha_list - alpha_max;
@@ -186,7 +176,6 @@ cbv_type = cbv_name_list(alphaIDX);
 
 cbvStats = table(pcr2_bar, pA_bar, alpha_max, alpha_cbv, cbv_type)
 
-% pB = (pAm - pcr2 + pA*(-1 -alpha_cbv))/((-1 -alpha_cbv));
 pB = (pcr2 + (1+alpha_cbv)*pA - pAm);
 pB_bar = pB * 1e-5
 max_capacity = 480; % [L/min]

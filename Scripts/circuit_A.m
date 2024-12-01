@@ -44,13 +44,15 @@ zdot_max = (Zw * 2*pi) / Tw; % t=Tw --> cos(2pi)=1
 thetadot_D_max = zdot_max*(2*n_sh*2/dD); % max speed of drum [rad/s]
 thetadot_m_max = iT*thetadot_D_max; % [rad/s]
 thetadot_m_max_rpm = thetadot_m_max * (60/(2*pi)); % [rad/s] -> [RPM]
-MaxSpeed = table(thetadot_D_max, thetadot_m_max, thetadot_m_max_rpm)
+thetaDotMax_v2 = zdot_max/i_pl2M;
+MaxSpeed = table(thetadot_D_max, thetadot_m_max, thetadot_m_max_rpm, thetaDotMax_v2)
 
 % Max Acceleration
-zdotdot_max = -((Zw*(2*pi)^2)/(Tw^2)); % [m/s^2]
-thetadotdot_D_max = -(4*n_sh*zdotdot_max)/dD; % [rad/s^2]
+zdotdot_max = abs(-((Zw*(2*pi)^2)/(Tw^2))); % [m/s^2]
+thetadotdot_D_max = (4*n_sh*zdotdot_max)/dD; % [rad/s^2]
 thetadotdot_m_max = iT*thetadotdot_D_max; % [rad/s^2]
-MaxAccel = table(thetadotdot_D_max, thetadotdot_m_max)
+thetaDotDotMax_v2 = zdotdot_max/i_pl2M;
+MaxAccel = table(thetadotdot_D_max, thetadotdot_m_max, thetaDotDotMax_v2)
 
 %%%%%%%%%%%%%%%%%%%%% Chosen Specific %%%%%%%%%%%%%%%%%%%%%
     % Volumetric Efficiency taken into account in Leakage flow below
@@ -91,12 +93,11 @@ Jpl = (mpl)*i_pl2M^2; % [kg*m^2], payload inertia
 Jtot = Jm*nm + Jpl;      % [kg*m^2], total inertia
 chosenMotor = table(Dm_cm, Dm, Jm, Jpl, Jtot)
 
+%%%%%%%%%%%%%%%%%%%%% Circuit A Specific %%%%%%%%%%%%%%%%%%%%%
 % pressure
 pL_max = (M_M_max + Jtot * thetadotdot_m_max) * ((2*pi)/Dm);
-% pL_max = (M_M_max) * ((2*pi)/Dm);
 pL_max_bar = pL_max*1e-5
 
-%%%%%%%%%%%%%%%%%%%%% Circuit A Specific %%%%%%%%%%%%%%%%%%%%%
 % Theoretical Flow
 Qm_t = (Dm/(2*pi)) * thetadot_m_max; % [m^3/sec]
 Qm_t_Lpmin = Qm_t * 6*10^4;          % [L/min]
