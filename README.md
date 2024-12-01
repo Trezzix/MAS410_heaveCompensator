@@ -11,11 +11,14 @@ system shown above with design and control of two hydraulic circuits:
 &nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-**Circuit B:** Proportional Valve & CBV config
-<img src="Figures/circuitA.png" alt="drawing" width="335"/>
-<img src="Figures/circuitB.png" alt="drawing" width="260"/>
+**Circuit B:** Pressure Compensated Proportional Valve & CBV
+<img src="Figures/circuitA.png" alt="drawing" height="300"/>
+<img src="Figures/circuitB.png" alt="drawing" height="300"/>
 
-## Litterature
+## Literature
 
-- The project uses the curriculum from the MAS410 course
-- Also lecture 5 from MAS419 (under simscape folder in CWD)
+- Curriculum from MAS410 course
+- Lecture 5 from MAS419 (under simscape folder in CWD)
+- Project Supplements
+  - PL1: Circuit B Equations
+  - PL2: Circuit B Simulation
