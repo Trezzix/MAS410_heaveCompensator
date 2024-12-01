@@ -178,7 +178,7 @@ pAm = ((M_M_max * 2 * pi) / Dm) + pB;
 alpha_max = (pAm - pcr2 - pA) / (pA - pB);
 % alpha_max = (pL_max + pB - pcr2 - pA) / (pA - pB);
 
-% Smallest CBV with sufficient alpha
+% Closest CBV with sufficient alpha
 diffList_CBValpha = cbv_alpha_list - alpha_max;
 [~, alphaIDX] = min(abs(diffList_CBValpha));
 alpha_cbv = cbv_alpha_list(alphaIDX);
@@ -192,10 +192,8 @@ pB_bar = pB * 1e-5
 max_capacity = 480; % [L/min]
 n_cbv_min = ceil(Qm_max_total_lpmin/max_capacity)
 
-% Q_free_flow_chk = 320 / 6e4; % [l/min]
-% Q_free_flow_cbv = 330 / 6e4; % [l/min]
-Q_free_flow_chk = 480 / 6e4; % [l/min]
-Q_free_flow_cbv = 480 / 6e4; % [l/min]
+Q_free_flow_chk = max_capacity / 6e4; % [L/min] --> [m^3/sec]
+Q_free_flow_cbv = max_capacity / 6e4; % [L/min] --> [m^3/sec]
 pCHK = 22e5; % [Pa]
 pCBV = 30e5; % [Pa]
 CdAd_chk =      Q_free_flow_chk/sqrt((2/rho) * pCHK); % [m^2]

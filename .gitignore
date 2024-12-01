@@ -31,3 +31,4 @@ octave-workspace
 # Drawing backup files
 *.bak
 *.dwl
+*.dwl2
